@@ -8,15 +8,12 @@ public class Main {
         System.out.println("Enter count of ships : ");
         countOfShips = scanner.nextInt();
         for (int i = 0; i<countOfShips;i++){
-            Ship ship = new Ship();
-            ship.setName("Ship" + (i+1));
-            Ship.getShips().add(ship);
+            String name = "Ship" + (i+1);
+            Ship.getShips().add(new Ship(name));
         }
-
         synchronized (Ship.getShips()){
             for (Ship ship : Ship.getShips()) ship.start();
 
         }
-//        System.out.println(Ship.getShips().get(0).getName() + " WIN!!!!");
     }
 }

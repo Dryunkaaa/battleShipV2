@@ -1,7 +1,14 @@
-import javax.swing.table.TableColumn;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class Ship extends Thread {
+
+    private static List<Ship> ships = Collections.synchronizedList(new ArrayList<>());
+    // temp variable to recharge ship
+    private static Ship currentShip = null;
+    private static Random random = new Random();
 
     private final static float minHp = 50.0f;
     private final static float maxHp = 100.0f;
@@ -10,29 +17,25 @@ public class Ship extends Thread {
     private final static float minCooldown = 0.1f;
     private final static float maxCooldown = 2.0f;
 
-    private static List<Ship> ships = Collections.synchronizedList(new ArrayList<>());
-
-    private static Random random = new Random();
-
     private float healPoints;
-
     private float damage;
-
     private float cooldown;
 
-    public Ship() {
+    public Ship(String name) {
         initFields();
+        this.setName(name);
     }
 
     @Override
     public void run() {
         while (!isInterrupted()) {
-            synchronized (ships){
+            synchronized (ships) {
                 if (this.isInterrupted()) break;
-                if (ships.size() != 1){
+                if (ships.size() != 1) {
+                    if (currentShip != null) currentShip.recharge(currentShip);
                     Ship target = getRandomShip(this);
                     shootAShip(target);
-                }else{
+                } else {
                     System.out.println(this.getName() + " WIN!!!");
                     break;
                 }
@@ -40,26 +43,26 @@ public class Ship extends Thread {
         }
     }
 
-    private void shootAShip(Ship target){
+    private void shootAShip(Ship target) {
+        currentShip = this;
         float targetHp = target.getHealPoints();
         float currentShipDamage = this.getDamage();
         target.setHealPoints(targetHp - currentShipDamage);
         System.out.println(this.getName() + " SHOOT TO " + target.getName());
         checkDeathStatus(target);
-        recharge();
     }
 
-    private void recharge(){
-        System.out.println(this.getName() + " IS RECHARGING ...");
+    private void recharge(Ship ship) {
+        System.out.println(ship.getName() + " IS RECHARGING ...");
         try {
-            this.sleep((long) (this.getCooldown() * 1000));
+            ship.sleep((long) (ship.getCooldown() * 1000));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private void checkDeathStatus(Ship target){
-        if (target.getHealPoints() <= 0){
+    private void checkDeathStatus(Ship target) {
+        if (target.getHealPoints() <= 0) {
             target.interrupt();
             ships.remove(target);
             System.out.println(target.getName() + " KILLED BY " + this.getName());
