@@ -32,6 +32,9 @@ public class Ship extends Thread {
                 if (ships.size() != 1){
                     Ship target = getRandomShip(this);
                     shootAShip(target);
+                }else{
+                    System.out.println(this.getName() + " WIN!!!");
+                    break;
                 }
             }
         }
