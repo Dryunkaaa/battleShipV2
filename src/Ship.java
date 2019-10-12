@@ -1,9 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import javax.swing.table.TableColumn;
+import java.util.*;
 
 public class Ship extends Thread {
 
@@ -15,8 +11,6 @@ public class Ship extends Thread {
     private final static float maxCooldown = 2.0f;
 
     private static List<Ship> ships = Collections.synchronizedList(new ArrayList<>());
-
-    Lock lock = new ReentrantLock();
 
     private static Random random = new Random();
 
@@ -33,16 +27,15 @@ public class Ship extends Thread {
     @Override
     public void run() {
         while (!isInterrupted()) {
+            synchronized (ships){
                 if (this.isInterrupted()) break;
                 if (ships.size() != 1){
-                    lock.lock();
                     Ship target = getRandomShip(this);
                     shootAShip(target);
-                    lock.unlock();
-                    recharge();
                 }
             }
         }
+    }
 
     private void shootAShip(Ship target){
         float targetHp = target.getHealPoints();
